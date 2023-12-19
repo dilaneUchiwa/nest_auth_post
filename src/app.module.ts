@@ -1,10 +1,16 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigModule } from '@nestjs/config';
+import { AuthController } from './auth/auth.controller';
+import { AuthService } from './auth/auth.service';
+import { PrismaService } from './prisma/prisma.service';
+import { PrismaController } from './prisma/prisma.controller';
+import { PrismaModule } from './prisma/prisma.module';
+import { MailerModule } from './mailer/mailer.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [ConfigModule.forRoot({isGlobal:true}), PrismaModule, MailerModule, AuthModule],
+  controllers: [AuthController, PrismaController],
+  providers: [AuthService, PrismaService],
 })
 export class AppModule {}
