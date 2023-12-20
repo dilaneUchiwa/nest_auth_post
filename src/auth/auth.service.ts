@@ -9,9 +9,11 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { ResetPasswordDTO } from './Dto/reset-password-dto';
 import { ResetPasswordConfirmationDTO } from './Dto/reset-password-confirmation-dto';
+import { DeleteAccountDto } from './Dto/delete-account-dto';
 
 @Injectable()
 export class AuthService {
+
     constructor(private readonly prismaService:PrismaService,
                 private readonly mailerService:MailerService,
                 private readonly jwtService:JwtService,
@@ -97,4 +99,17 @@ export class AuthService {
         
     }
 
+    async deleteAccount(userId: number, deleteACcountDto: DeleteAccountDto) {
+        const {password}=deleteACcountDto
+        
+        const user=await this.prismaService.user.findUnique({where:{userId}});
+        if(!user) throw new NotFoundException('User does not exist');
+       
+        const match=await bcrypt.compare(password,user.password);
+        if(!match) throw new UnauthorizedException("Password does not match");
+         
+        await this.prismaService.user.delete({where:{userId}})
+
+        return {data:"User deleted"};
+    }
 }
